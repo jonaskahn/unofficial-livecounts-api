@@ -1,5 +1,5 @@
 import pytest
-from livecounts_api import env
+from unofficial_livecounts_api import env
 
 from unofficial_livecounts_api.error import TiktokError
 from unofficial_livecounts_api.tiktok import TiktokAgent, TiktokUser, TiktokUserCount, TiktokVideo, TikTokVideoCount

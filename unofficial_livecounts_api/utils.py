@@ -6,8 +6,7 @@ from datetime import datetime
 import urllib3
 from Crypto.Hash import RIPEMD160
 from latest_user_agents import get_random_user_agent
-from livecounts_api import env
-
+from unofficial_livecounts_api import env
 from unofficial_livecounts_api.error import RequestApiError
 
 

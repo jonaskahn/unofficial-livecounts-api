@@ -1,8 +1,7 @@
 import re
 import warnings
 
-from livecounts_api import env
-
+from unofficial_livecounts_api import env
 from unofficial_livecounts_api.error import TiktokError
 from unofficial_livecounts_api.utils import send_request
 
