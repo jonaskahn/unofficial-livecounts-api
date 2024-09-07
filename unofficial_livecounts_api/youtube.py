@@ -1,5 +1,4 @@
-from livecounts_api import env
-
+from unofficial_livecounts_api import env
 from unofficial_livecounts_api.error import YoutubeError
 from unofficial_livecounts_api.utils import send_request
 
@@ -25,10 +24,12 @@ class YoutubeChannel:
 
 
 class YoutubeChannelCount:
-    def __init__(self, channel_id: str, follower_count: int, channel_count: list[int]):
+    def __init__(self, channel_id: str, follower_count: int, channel_stats: list[int]):
         self.channel_id = channel_id
         self.follower_count = follower_count
-        self.channel_count = channel_count
+        self.view_count = channel_stats[0]
+        self.video_count = channel_stats[1]
+        self.goal_count = channel_stats[2]
 
     def __eq__(self, other):
         if not isinstance(other, YoutubeChannelCount):
@@ -42,7 +43,9 @@ class YoutubeChannelCount:
         return {
             "channel_id": self.channel_id,
             "follower_count": self.follower_count,
-            "channel_count": self.channel_count
+            "view_count": self.view_count,
+            "video_count": self.video_count,
+            "goal_count": self.goal_count
         }
 
 
@@ -69,14 +72,12 @@ class YoutubeVideo:
 
 
 class YoutubeVideoCount:
-    def __init__(self, video_id: str, likes: int, dis_likes: int, raw_likes: int, raw_dislikes: int, view_count: int, is_delete: bool = None):
+    def __init__(self, video_id: str, view_count: int, video_stats: list[str]):
         self.video_id = video_id
-        self.likes = likes
-        self.dis_likes = dis_likes
-        self.raw_likes = raw_likes
-        self.raw_dislikes = raw_dislikes
         self.view_count = view_count
-        self.is_delete = is_delete
+        self.like_count = video_stats[0]
+        self.dislike_count = video_stats[1]
+        self.comment_count = video_stats[2]
 
     def __eq__(self, other):
         if not isinstance(other, YoutubeVideoCount):
@@ -89,33 +90,31 @@ class YoutubeVideoCount:
     def __dict__(self):
         return {
             "video_id": self.video_id,
-            "likes": self.likes,
-            "dis_likes": self.dis_likes,
-            "raw_likes": self.raw_likes,
-            "raw_dislikes": self.raw_dislikes,
             "view_count": self.view_count,
-            "is_delete": self.is_delete
+            "like_count": self.like_count,
+            "dislike_count": self.dislike_count,
+            "comment_count": self.comment_count
         }
 
 
 class YoutubeAgent:
 
     @staticmethod
-    def find_user(query: str, exact: bool = False) -> list[YoutubeChannel] | YoutubeChannel:
+    def find_channel(query: str, exact: bool = False) -> list[YoutubeChannel] | YoutubeChannel:
         """
-        Finds a YouTube user based on the provided query.
+        Find YouTube channel(s) based on the provided query.
 
         Args:
             query (str): The search query (channel_id or username) to find a channel or list of potential channels.
             exact (bool, optional): If True, finds an exact match for the query, strongly recommend use channel_id for query. Defaults to False.
 
         Returns:
-            list[YoutubeUser] | YoutubeUser
+            list[YoutubeChannel] | YoutubeChannel
         """
-        return YoutubeAgent.__find_exact_user(query) if exact else YoutubeAgent.__find_users(query)
+        return YoutubeAgent.__find_exact_channel(query) if exact else YoutubeAgent.__find_channels(query)
 
     @staticmethod
-    def __find_users(query: str) -> list[YoutubeChannel]:
+    def __find_channels(query: str) -> list[YoutubeChannel]:
         users = send_request(f"{env.YOUTUBE_CHANNEL_SEARCH_API}/{query}").get("userData", [])
         return [
             YoutubeChannel(
@@ -127,17 +126,53 @@ class YoutubeAgent:
         ]
 
     @staticmethod
-    def __find_exact_user(query: str) -> YoutubeChannel:
-        users = YoutubeAgent.__find_users(query)
+    def __find_exact_channel(query: str) -> YoutubeChannel:
+        users = YoutubeAgent.__find_channels(query)
         for user in users:
-            if user.channel_id == query:
+            if user.channel_id == query or user.display_name == query:
                 return user
         raise YoutubeError("youtube channel is not found")
 
     @staticmethod
+    def fetch_channel_metrics(query: str = None, channel_id: str = None) -> YoutubeChannelCount:
+        """
+        Fetch the metrics of a YouTube channel.
+
+        Args:
+            query (str, optional): The search query (channel_id or username) to find a channel. Defaults to None.
+            channel_id (str, optional): The ID of the YouTube channel. Defaults to None.
+
+        Returns:
+            YoutubeChannelCount: An object containing the metrics of the YouTube channel.
+
+        Raises:
+            YoutubeError: If neither 'query' nor 'channel_id' is provided.
+        """
+        if channel_id is not None:
+            return YoutubeAgent.__fetch_channel_metrics_by_id(channel_id)
+        elif query is not None:
+            return YoutubeAgent.__fetch_channel_metrics_by_query(query)
+        else:
+            raise YoutubeError("must provide either 'query' or 'channel_id'")
+
+    @staticmethod
+    def __fetch_channel_metrics_by_id(channel_id) -> YoutubeChannelCount:
+        metrics = send_request(f"{env.YOUTUBE_CHANNEL_STATS_API}/{channel_id}")
+        return YoutubeChannelCount(
+            channel_id=channel_id,
+            follower_count=metrics.get("followerCount", 0),
+            channel_stats=metrics.get("bottomOdos", [0, 0, 0]),
+        )
+
+    @staticmethod
+    def __fetch_channel_metrics_by_query(query) -> YoutubeChannelCount:
+        channel = YoutubeAgent.__find_exact_channel(query)
+        return YoutubeAgent.__fetch_channel_metrics_by_id(channel.channel_id)
+
+    @staticmethod
     def find_video(query: str, exact: bool = False) -> list[YoutubeVideo] | YoutubeVideo:
         """
-        Finds a YouTube video based on the provided query.
+        Find a YouTube video based on the provided query.
 
         Args:
             query (str): The search query (video_id or title) to find a video or list of potential videos.
@@ -164,6 +199,43 @@ class YoutubeAgent:
     def __find_exact_video(query: str) -> YoutubeVideo:
         videos = YoutubeAgent.__find_videos(query)
         for video in videos:
-            if video.video_id == query:
+            print(video.video_id)
+            if video.video_id == query or video.display_name == query:
                 return video
         raise YoutubeError("youtube video is not found")
+
+    @staticmethod
+    def fetch_video_metrics(query: str = None, video_id: str = None) -> YoutubeVideoCount:
+        """
+        Fetch the metrics of a YouTube video.
+
+        Args:
+            query (str, optional): The search query (video_id or title) to find a video. Defaults to None.
+            video_id (str, optional): The ID of the YouTube video. Defaults to None.
+
+        Returns:
+            YoutubeVideoCount: An object containing the metrics of the YouTube video.
+
+        Raises:
+            YoutubeError: If neither 'query' nor 'video_id' is provided.
+        """
+        if video_id is not None:
+            return YoutubeAgent.__fetch_video_metrics_by_id(video_id)
+        elif query is not None:
+            return YoutubeAgent.__fetch_video_metrics_by_query(query)
+        else:
+            raise YoutubeError("must provide either 'query' or 'video_id'")
+
+    @staticmethod
+    def __fetch_video_metrics_by_id(video_id) -> YoutubeVideoCount:
+        metrics = send_request(f"{env.YOUTUBE_VIDEO_STATS_API}/{video_id}")
+        return YoutubeVideoCount(
+            video_id=video_id,
+            view_count=metrics.get("followerCount", 0),
+            video_stats=metrics.get("bottomOdos", [0, 0, 0]),
+        )
+
+    @staticmethod
+    def __fetch_video_metrics_by_query(query):
+        video = YoutubeAgent.__find_exact_video(query)
+        return YoutubeAgent.__fetch_video_metrics_by_id(video.video_id)

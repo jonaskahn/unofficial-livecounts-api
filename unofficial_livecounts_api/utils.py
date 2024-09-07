@@ -10,10 +10,16 @@ from livecounts_api import env
 
 from unofficial_livecounts_api.error import RequestApiError
 
-warnings.simplefilter('ignore', urllib3.exceptions.InsecureRequestWarning)
 
-http_client = urllib3.ProxyManager(env.PROXY_SERVER, cert_reqs="CERT_NONE", assert_hostname=False) if env.PROXY_ENABLED == "on" \
-    else urllib3.PoolManager(cert_reqs="CERT_NONE", assert_hostname=False)
+def __get_http_client():
+    if env.PROXY_ENABLED == "on" and env.PROXY_SERVER:
+        return urllib3.ProxyManager(env.PROXY_SERVER, cert_reqs="CERT_NONE", assert_hostname=False)
+    else:
+        return urllib3.PoolManager(cert_reqs="CERT_NONE", assert_hostname=False)
+
+
+warnings.simplefilter('ignore', urllib3.exceptions.InsecureRequestWarning)
+http_client = __get_http_client()
 
 
 def send_request(url):

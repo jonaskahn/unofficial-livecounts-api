@@ -112,7 +112,7 @@ class TiktokAgent:
     @staticmethod
     def find_user(query: str, exact: bool = False) -> list[TiktokUser] | TiktokUser:
         """
-        Finds TikTok users based on the provided query.
+        Find TikTok user(s) based on the provided query.
 
         Args:
             query (str): The search query to find a user or list of potential users.
@@ -144,14 +144,14 @@ class TiktokAgent:
     def __find_exact_user(query: str) -> TiktokUser:
         users = TiktokAgent.__find_users(query)
         for user in users:
-            if user.username == query:
+            if user.username == query or user.display_name == query:
                 return user
         raise TiktokError("tiktok user is not found")
 
     @staticmethod
     def fetch_user_metrics(query: str = None, user_id: str = None) -> TiktokUserCount:
         """
-        Fetches user metrics from TikTok API.
+        Fetch user metrics from TikTok API.
 
         Args:
             query (str): The username of the TikTok user.
@@ -183,13 +183,13 @@ class TiktokAgent:
 
     @staticmethod
     def __fetch_user_metrics_by_query(query) -> TiktokUserCount:
-        user = TiktokAgent.find_user(query, True)
+        user = TiktokAgent.__find_exact_user(query)
         return TiktokAgent.__fetch_user_metrics_by_tiktok_id(user.user_id)
 
     @staticmethod
     def find_video(query: str = None, video_id: str = None) -> TiktokVideo:
         """
-        Finds a TikTok video by its ID or URL.
+        Find a TikTok video by its ID or URL.
 
         Args:
             query (str): The URL of the TikTok video.
@@ -234,7 +234,7 @@ class TiktokAgent:
     @staticmethod
     def fetch_video_metrics(query: str = None, video_id: str = None) -> TikTokVideoCount:
         """
-        Fetches the metrics of a TikTok video.
+        Fetch the metrics of a TikTok video.
 
         Args:
             query (str, optional): The URL of the TikTok video. Defaults to None.
