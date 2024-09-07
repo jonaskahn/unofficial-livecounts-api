@@ -56,12 +56,8 @@ from unofficial_livecounts_api.youtube import YoutubeAgent
 # Find channels by given query
 channels = YoutubeAgent.find_channel(query="test")
 
-# Find exact channel by given query
-channel = YoutubeAgent.find_channel(query="test", exact=True)
-
 # Live count channel
 channel_metrics_by_query = YoutubeAgent.fetch_channel_metrics(query="test")
-channel_metrics_by_channel_id = YoutubeAgent.fetch_channel_metrics(channel_id="123456789")
 
 ```
 
