@@ -4,13 +4,13 @@
 
 ## 📝 Supported API
 
-- **YouTube**: User/Video Count
-- **TikTok**: User/Video Count
-- **Twitter**: User Count
-- **Twitch**: To be supported
-- **Vlive**: To be supported
-- **Kicklive**: To be supported
-- **Odysee-live**: To be supported
+- [x] **YouTube**: User/Video Count
+- [x] **TikTok**: User/Video Count
+- [x] **Twitter**: User Count
+- [] **Twitch**: To be supported
+- [] **Vlive**: To be supported
+- [] **Kicklive**: To be supported
+- [] **Odysee-live**: To be supported
 
 ## 🕵️ Usage
 
