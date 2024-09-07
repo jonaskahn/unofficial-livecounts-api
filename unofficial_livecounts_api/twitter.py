@@ -4,21 +4,21 @@ from unofficial_livecounts_api.utils import send_request
 
 
 class TwitterUser:
-    def __init__(self, username: str, display_name: str, thumbnail: str, verified: bool = None):
-        self.username = username
+    def __init__(self, user_id: str, display_name: str, thumbnail: str, verified: bool = None):
+        self.user_id = user_id
         self.thumbnail = thumbnail
         self.display_name = display_name
         self.verified = verified
 
     def __eq__(self, other):
-        return self.username == other.username if isinstance(other, TwitterUser) else False
+        return self.user_id == other.user_id if isinstance(other, TwitterUser) else False
 
     def __hash__(self):
-        return hash(self.username)
+        return hash(self.user_id)
 
     def __dict__(self):
         return {
-            "username": self.username,
+            "user_id": self.user_id,
             "display_name": self.display_name,
             "thumbnail": self.thumbnail,
             "verified": self.verified
@@ -26,8 +26,8 @@ class TwitterUser:
 
 
 class TwitterUserCount:
-    def __init__(self, username: str, follower_count: int, user_stats: list[int]):
-        self.username = username
+    def __init__(self, user_id: str, follower_count: int, user_stats: list[int]):
+        self.user_id = user_id
         self.follower_count = follower_count
         self.tweet_count = user_stats[0]
         self.following_count = user_stats[1]
@@ -36,14 +36,14 @@ class TwitterUserCount:
     def __eq__(self, other):
         if not isinstance(other, TwitterUserCount):
             return False
-        return self.username == other.username
+        return self.user_id == other.user_id
 
     def __hash__(self):
-        return hash(self.username)
+        return hash(self.user_id)
 
     def __dict__(self):
         return {
-            "username": self.username,
+            "user_id": self.user_id,
             "follower_count": self.follower_count,
             "tweet_count": self.tweet_count,
             "following_count": self.following_count,
@@ -71,7 +71,7 @@ class TwitterAgent:
         if not users:
             raise TwitterError("user not found")
         return TwitterUser(
-            username=users[0]["id"],
+            user_id=users[0]["id"],
             display_name=users[0]["username"],
             thumbnail=users[0]["avatar"],
             verified=users[0]["verified"]
@@ -93,7 +93,7 @@ class TwitterAgent:
         """
         metrics = send_request(f"{env.TWITTER_USER_STATS_API}/{query}")
         return TwitterUserCount(
-            username=query,
+            user_id=query,
             follower_count=metrics.get("followerCount", 0),
             user_stats=metrics.get("bottomOdos", [0, 0, 0]),
         )

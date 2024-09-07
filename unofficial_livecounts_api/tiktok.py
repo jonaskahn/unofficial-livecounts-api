@@ -1,8 +1,9 @@
 import re
 import warnings
 
+import validators
+
 from unofficial_livecounts_api import env
-from unofficial_livecounts_api.error import TiktokError
 from unofficial_livecounts_api.utils import send_request
 
 
@@ -20,7 +21,7 @@ class TiktokUser:
     def __hash__(self):
         return hash(self.user_id)
 
-    def __dir__(self):
+    def __dict__(self):
         return {
             "user_id": self.user_id,
             "username": self.username,
@@ -109,25 +110,17 @@ class TikTokVideoCount:
 class TiktokAgent:
 
     @staticmethod
-    def find_user(query: str, exact: bool = False) -> list[TiktokUser] | TiktokUser:
+    def find_user(query: str) -> list[TiktokUser]:
         """
         Find TikTok user(s) based on the provided query.
 
         Args:
             query (str): The search query to find a user or list of potential users.
-            exact (bool): If True, finds an exact match for the query. Defaults to False.
 
         Returns:
-            list[TiktokUser] | TiktokUser
-
-        Raises:
-            TiktokError - if the user is not found.
+            list[TiktokUser]
         """
-        return TiktokAgent.__find_exact_user(query) if exact else TiktokAgent.__find_users(query)
-
-    @staticmethod
-    def __find_users(query: str) -> list[TiktokUser]:
-        data = send_request(f"{env.TIKTOK_USER_SEARCH_API}/{query}")
+        raw_users = send_request(f"{env.TIKTOK_USER_SEARCH_API}/{query}")
         return [
             TiktokUser(
                 user_id=item.get("userId", ""),
@@ -136,38 +129,21 @@ class TiktokAgent:
                 verified=item.get("verified", False),
                 thumbnail=item.get("avatar", ""),
             )
-            for item in data.get("userData", [])
+            for item in raw_users.get("userData", [])
         ]
 
     @staticmethod
-    def __find_exact_user(query: str) -> TiktokUser:
-        users = TiktokAgent.__find_users(query)
-        for user in users:
-            if user.username == query or user.display_name == query:
-                return user
-        raise TiktokError("tiktok user is not found")
-
-    @staticmethod
-    def fetch_user_metrics(query: str = None, user_id: str = None) -> TiktokUserCount:
+    def fetch_user_metrics(query: str) -> TiktokUserCount:
         """
         Fetch user metrics from TikTok API.
 
         Args:
-            query (str): The username of the TikTok user.
-            user_id (str): The ID of the TikTok user.
+            query (str): user_id of the TikTok user.
 
         Returns:
             TiktokUserCount: An object containing user metrics.
-
-        Raises:
-            TiktokError: If neither 'query' nor 'tiktok_id' is provided.
         """
-        if user_id is not None:
-            return TiktokAgent.__fetch_user_metrics_by_tiktok_id(user_id)
-        elif query is not None:
-            return TiktokAgent.__fetch_user_metrics_by_query(query)
-        else:
-            raise TiktokError("must provide either 'query' or 'tiktok_id'")
+        return TiktokAgent.__fetch_user_metrics_by_tiktok_id(query)
 
     @staticmethod
     def __fetch_user_metrics_by_tiktok_id(tiktok_id: str) -> TiktokUserCount:
@@ -181,18 +157,12 @@ class TiktokAgent:
         )
 
     @staticmethod
-    def __fetch_user_metrics_by_query(query) -> TiktokUserCount:
-        user = TiktokAgent.__find_exact_user(query)
-        return TiktokAgent.__fetch_user_metrics_by_tiktok_id(user.user_id)
-
-    @staticmethod
-    def find_video(query: str = None, video_id: str = None) -> TiktokVideo:
+    def find_video(query: str) -> TiktokVideo:
         """
         Find a TikTok video by its ID or URL.
 
         Args:
-            query (str): The URL of the TikTok video.
-            video_id (str): The ID of the TikTok video.
+            query (str): URL | ID of the TikTok video.
 
         Returns:
             TiktokVideo: An object containing video information.
@@ -200,11 +170,9 @@ class TiktokAgent:
         Raises:
             TiktokError: If neither 'query' nor 'video_id' is provided.
         """
-        if query is not None:
-            video_id = TiktokAgent.__extract_video_id_from_given_url(query)
-        if video_id is None:
-            raise TiktokError("must provide either 'query' or 'video_id'")
-        return TiktokAgent.__find_video_by_id(video_id)
+        if validators.url(query):
+            query = TiktokAgent.__extract_video_id_from_given_url(query)
+        return TiktokAgent.__find_video_by_id(query)
 
     @staticmethod
     def __find_video_by_id(video_id: str) -> TiktokVideo:
@@ -231,13 +199,12 @@ class TiktokAgent:
             return None
 
     @staticmethod
-    def fetch_video_metrics(query: str = None, video_id: str = None) -> TikTokVideoCount:
+    def fetch_video_metrics(query: str) -> TikTokVideoCount:
         """
         Fetch the metrics of a TikTok video.
 
         Args:
-            query (str, optional): The URL of the TikTok video. Defaults to None.
-            video_id (str, optional): The ID of the TikTok video. Defaults to None.
+            query (str): URL | ID of the TikTok video. Defaults to None.
 
         Returns:
             TikTokVideoCount: An object containing the metrics of the TikTok video.
@@ -245,14 +212,11 @@ class TiktokAgent:
         Raises:
             TiktokError: If neither 'query' nor 'video_id' is provided.
         """
-        if query is not None:
-            video_id = TiktokAgent.__extract_video_id_from_given_url(query)
-        elif video_id is None:
-            raise TiktokError("must provide either 'query' or 'video_id'")
-
-        metrics = send_request(f"{env.TIKTOK_VIDEO_STATS_API}/{video_id}")
+        if validators.url(query):
+            query = TiktokAgent.__extract_video_id_from_given_url(query)
+        metrics = send_request(f"{env.TIKTOK_VIDEO_STATS_API}/{query}")
         return TikTokVideoCount(
-            video_id=video_id,
+            video_id=query,
             like_count=metrics.get("likeCount", 0),
             comment_count=metrics.get("commentCount", 0),
             share_count=metrics.get("shareCount", 0),

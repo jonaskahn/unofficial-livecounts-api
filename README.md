@@ -28,12 +28,8 @@ from unofficial_livecounts_api.tiktok import TiktokAgent
 # Find users
 users = TiktokAgent.find_user(query="best")
 
-# Find exact (one) user
-exact_user = TiktokAgent.find_user(query="best", exact=True)
-
-# Live count user
-user_metric_by_query = TiktokAgent.fetch_user_metrics(query="best")
-user_metric_by_user_id = TiktokAgent.fetch_user_metrics(user_id="123456789")
+# Live count a user
+user_metric_by_user_id = TiktokAgent.fetch_user_metrics(query="123456789")
 ```
 
 - **Video API**
@@ -43,11 +39,11 @@ from unofficial_livecounts_api.tiktok import TiktokAgent
 
 # Find a video
 video_by_query = TiktokAgent.find_video(query="https://tiktok.com/@test/video/122222223233232?test1=value1")
-video_by_video_id = TiktokAgent.find_video(video_id="122222223233232")
+video_by_video_id = TiktokAgent.find_video(query="122222223233232")
 
 # Live count video
 video_metric_by_query = TiktokAgent.fetch_video_metrics(query="https://tiktok.com/@test/video/122222223233232?test1=value1")
-video_metric_by_video_id = TiktokAgent.fetch_video_metrics(video_id="122222223233232")
+video_metric_by_video_id = TiktokAgent.fetch_video_metrics(query="122222223233232")
 ```
 
 ### YouTube API
@@ -77,12 +73,8 @@ from unofficial_livecounts_api.youtube import YoutubeAgent
 # Find videos by given query
 videos = YoutubeAgent.find_video(query="test")
 
-# Find exact video by given query
-video = YoutubeAgent.find_video(query="test", exact=True)
-
-# Live count video
-video_metrics_by_query = YoutubeAgent.fetch_video_metrics(query="test")
-video_metrics_by_video_id = YoutubeAgent.fetch_video_metrics(video_id="123456789")
+# Live count a video
+video_metrics_by_query = YoutubeAgent.fetch_video_metrics(query="123456789")
 ```
 
 ### Twitter API
