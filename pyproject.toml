@@ -21,3 +21,8 @@ pytest-cov = "^5.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[project.urls]
+Homepage = "https://pypi.org/project/unofficial-livecounts-api"
+Issues = "https://github.com/jonaskahn/unofficial-livecounts-api/issues"
+Source = "https://github.com/jonaskahn/unofficial-livecounts-api"
