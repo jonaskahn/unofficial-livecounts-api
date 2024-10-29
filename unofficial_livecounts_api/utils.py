@@ -13,9 +13,7 @@ from unofficial_livecounts_api.error import RequestApiError
 
 def __get_http_client():
     if env.PROXY_ENABLED == "on" and env.PROXY_SERVER:
-        return urllib3.ProxyManager(
-            env.PROXY_SERVER, cert_reqs="CERT_NONE", assert_hostname=False
-        )
+        return urllib3.ProxyManager(env.PROXY_SERVER, cert_reqs="CERT_NONE", assert_hostname=False)
     else:
         return urllib3.PoolManager(cert_reqs="CERT_NONE", assert_hostname=False)
 
@@ -24,18 +22,19 @@ warnings.simplefilter("ignore", urllib3.exceptions.InsecureRequestWarning)
 http_client = __get_http_client()
 
 
-def send_request(url):
+def send_request(url: str) -> dict[str, str]:
     try:
         response = http_client.request(
             method="GET",
             url=url,
             headers=__get_default_header(),
         )
+        if response.status != 200:
+            raise RequestApiError(f"server reject response this request, status: {response.status}")
+
         data = json.loads(response.data.decode("utf-8"))
         if not data.get("success", True):
-            raise RequestApiError(
-                f"server response that it's not success, query: {url}"
-            )
+            raise RequestApiError(f"server response that it's not success, query: {url}")
         return data
     except Exception as e:
         if isinstance(e, RequestApiError):

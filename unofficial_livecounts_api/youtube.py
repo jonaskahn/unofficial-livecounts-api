@@ -9,11 +9,7 @@ class YoutubeChannel:
         self.thumbnail = thumbnail
 
     def __eq__(self, other):
-        return (
-            self.channel_id == other.channel_id
-            if isinstance(other, YoutubeChannel)
-            else False
-        )
+        return self.channel_id == other.channel_id if isinstance(other, YoutubeChannel) else False
 
     def __hash__(self):
         return hash(self.channel_id)
@@ -105,17 +101,18 @@ class YoutubeAgent:
     @staticmethod
     def find_channel(query: str) -> list[YoutubeChannel]:
         """
-        Find YouTube channel(s) based on the provided query.
+        Search for YouTube channels based on a channel name query.
 
         Args:
-            query (str): The search query (channel_id or username) to find a channel or list of potential channels.
+            query (str): The channel name to search for on YouTube
 
         Returns:
-            list[YoutubeChannel]
+            list[YoutubeChannel]: A list of YoutubeChannel objects containing:
+                - channel_id (str): Unique identifier of the channel
+                - display_name (str): Channel name as displayed on YouTube
+                - thumbnail (str): URL to the channel's profile picture
         """
-        users = send_request(f"{env.YOUTUBE_CHANNEL_SEARCH_API}/{query}").get(
-            "userData", []
-        )
+        users = send_request(f"{env.YOUTUBE_CHANNEL_SEARCH_API}/{query}").get("userData", [])
         return [
             YoutubeChannel(
                 channel_id=item.get("id", ""),
@@ -128,16 +125,17 @@ class YoutubeAgent:
     @staticmethod
     def fetch_channel_metrics(query: str) -> YoutubeChannelCount:
         """
-        Fetch the metrics of a YouTube channel.
+        Fetch engagement metrics and statistics for a YouTube channel.
 
         Args:
-            query: Channel ID
+            query (str): The channel_id of the YouTube channel to fetch metrics for
 
         Returns:
-            YoutubeChannelCount: An object containing the metrics of the YouTube channel.
-
-        Raises:
-            YoutubeError: If neither 'query' nor 'channel_id' is provided.
+            YoutubeChannelCount: An object containing channel metrics including:
+                - channel_id (str): Unique identifier of the channel
+                - follower_count (int): Number of subscribers to the channel
+                - channel_stats (list[int]): List of three engagement metrics
+                  [likes, comments, shares] across all videos
         """
         metrics = send_request(f"{env.YOUTUBE_CHANNEL_STATS_API}/{query}")
         return YoutubeChannelCount(
@@ -149,17 +147,18 @@ class YoutubeAgent:
     @staticmethod
     def find_video(query: str) -> list[YoutubeVideo]:
         """
-        Find a YouTube video based on the provided query.
+        Search for YouTube videos based on a search query.
 
         Args:
-            query (str): The search query to find a video or list of potential videos.
+            query (str): The search terms to find videos on YouTube
 
         Returns:
-            list[YoutubeVideo]
+            list[YoutubeVideo]: A list of YoutubeVideo objects containing:
+                - video_id (str): Unique identifier of the video
+                - display_name (str): Title of the video
+                - thumbnail (str): URL to the video's thumbnail image
         """
-        videos = send_request(f"{env.YOUTUBE_VIDEO_SEARCH_API}/{query}").get(
-            "userData", []
-        )
+        videos = send_request(f"{env.YOUTUBE_VIDEO_SEARCH_API}/{query}").get("userData", [])
         return [
             YoutubeVideo(
                 video_id=item.get("id", ""),
@@ -172,16 +171,17 @@ class YoutubeAgent:
     @staticmethod
     def fetch_video_metrics(query: str) -> YoutubeVideoCount:
         """
-        Fetch the metrics of a YouTube video.
+        Fetch engagement metrics for a specific YouTube video.
 
         Args:
-            query (str): Channel ID
+            query (str): The video_id of the YouTube video to fetch metrics for
 
         Returns:
-            YoutubeVideoCount: An object containing the metrics of the YouTube video.
-
-        Raises:
-            YoutubeError: If neither 'query' nor 'video_id' is provided.
+            YoutubeVideoCount: An object containing video metrics including:
+                - video_id (str): Unique identifier of the video
+                - view_count (int): Number of views on the video
+                - video_stats (list[int]): List of three engagement metrics
+                  [likes, comments, shares] for the video
         """
         metrics = send_request(f"{env.YOUTUBE_VIDEO_STATS_API}/{query}")
         return YoutubeVideoCount(

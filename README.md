@@ -9,7 +9,7 @@ KickLive, Vlive, and Odysee**
 - [x] **TikTok**: User/Video Count
 - [x] **Twitter**: User Count
 - [x] **Twitch**: User Count
-- [ ] **Kicklive**: To be supported
+- [ ] ~**Kicklive**~: Use the Official API
 - [ ] **Vlive**: To be supported
 - [ ] **Odysee-live**: To be supported
 
@@ -85,6 +85,18 @@ user = TwitterAgent.find_user(query="jack")
 
 # Live count user
 metrics = TwitterAgent.fetch_user_metrics(query="jack")
+```
+
+### Twitch API
+
+```python
+from unofficial_livecounts_api.twitch import TwitchAgent
+
+# Find users by given query
+user = TwitchAgent.find_user(query="jack")
+
+# Live count user
+metrics = TwitchAgent.fetch_user_metrics(query="jack")
 ```
 
 ## 📛 Disclaimer

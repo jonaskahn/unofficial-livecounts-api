@@ -30,11 +30,7 @@ class TwitchUserCount:
         self.follower_count = follower_count
 
     def __eq__(self, other):
-        return (
-            self.user_id == other.user_id
-            if isinstance(other, TwitchUserCount)
-            else False
-        )
+        return self.user_id == other.user_id if isinstance(other, TwitchUserCount) else False
 
     def __hash__(self):
         return hash(self.user_id)
@@ -47,6 +43,21 @@ class TwitchAgent:
 
     @staticmethod
     def find_user(query: str) -> list[TwitchUser]:
+        """
+        Search for Twitch users by username and return a list of matching profiles.
+
+        Args:
+            query (str): The username to search for on Twitch
+
+        Returns:
+            list[TwitchUser]: A list of TwitchUser objects containing:
+                - user_id (str): Unique identifier of the user
+                - username (str): Login name of the user
+                - display_name (str): Display name shown on profile
+                - thumbnail (str): URL to the user's profile picture
+        Note:
+            Returns an empty list if no users are found matching the query
+        """
         raw_user = send_request(f"{env.TWITCH_USER_SEARCH_API}/{query}")
         return [
             TwitchUser(
@@ -60,6 +71,17 @@ class TwitchAgent:
 
     @staticmethod
     def fetch_user_metrics(query: str) -> TwitchUserCount:
+        """
+        Fetch follower metrics for a specific Twitch user.
+
+        Args:
+            query (str): The username of the Twitch user to fetch metrics for
+
+        Returns:
+            TwitchUserCount: An object containing user metrics including:
+                - user_id (str): Username of the account
+                - follower_count (int): Number of followers for the channel
+        """
         metrics = send_request(f"{env.TWITCH_USER_STATS_API}/{query}")
         return TwitchUserCount(
             user_id=query,

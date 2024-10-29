@@ -1,21 +1,16 @@
 from unofficial_livecounts_api import env
-from unofficial_livecounts_api.error import TwitterError
 from unofficial_livecounts_api.utils import send_request
 
 
 class TwitterUser:
-    def __init__(
-        self, user_id: str, display_name: str, thumbnail: str, verified: bool = None
-    ):
+    def __init__(self, user_id: str, display_name: str, thumbnail: str, verified: bool = None):
         self.user_id = user_id
         self.thumbnail = thumbnail
         self.display_name = display_name
         self.verified = verified
 
     def __eq__(self, other):
-        return (
-            self.user_id == other.user_id if isinstance(other, TwitterUser) else False
-        )
+        return self.user_id == other.user_id if isinstance(other, TwitterUser) else False
 
     def __hash__(self):
         return hash(self.user_id)
@@ -67,15 +62,8 @@ class TwitterAgent:
 
         Returns:
             TwitterUser
-
-        Raise:
-            TwitterError - if the user is not found.
         """
-        users = send_request(f"{env.TWITTER_USER_SEARCH_API}/{query}").get(
-            "userData", []
-        )
-        if not users:
-            raise TwitterError("user not found")
+        users = send_request(f"{env.TWITTER_USER_SEARCH_API}/{query}").get("userData", [])
         return TwitterUser(
             user_id=users[0]["id"],
             display_name=users[0]["username"],
@@ -93,9 +81,6 @@ class TwitterAgent:
 
         Returns:
             TwitterUserCount: An instance of the TwitterUserCount class containing the metrics of the user.
-
-        Raises:
-            None
         """
         metrics = send_request(f"{env.TWITTER_USER_STATS_API}/{query}")
         return TwitterUserCount(
@@ -103,7 +88,3 @@ class TwitterAgent:
             follower_count=metrics.get("followerCount", 0),
             user_stats=metrics.get("bottomOdos", [0, 0, 0]),
         )
-
-
-class XAgent(TwitterAgent):
-    pass
