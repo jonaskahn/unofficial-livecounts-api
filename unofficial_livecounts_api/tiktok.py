@@ -8,7 +8,14 @@ from unofficial_livecounts_api.utils import send_request
 
 
 class TiktokUser:
-    def __init__(self, user_id: str, username: str, display_name: str, thumbnail: str, verified: bool = None):
+    def __init__(
+        self,
+        user_id: str,
+        username: str,
+        display_name: str,
+        thumbnail: str,
+        verified: bool = None,
+    ):
         self.user_id = user_id
         self.username = username
         self.thumbnail = thumbnail
@@ -27,12 +34,19 @@ class TiktokUser:
             "username": self.username,
             "display_name": self.display_name,
             "thumbnail": self.thumbnail,
-            "verified": self.verified
+            "verified": self.verified,
         }
 
 
 class TiktokUserCount:
-    def __init__(self, user_id: str, follower_count: int, like_count: int, following_count: int, video_count: int):
+    def __init__(
+        self,
+        user_id: str,
+        follower_count: int,
+        like_count: int,
+        following_count: int,
+        video_count: int,
+    ):
         self.user_id = user_id
         self.follower_count = follower_count
         self.like_count = like_count
@@ -53,7 +67,7 @@ class TiktokUserCount:
             "follower_count": self.follower_count,
             "like_count": self.like_count,
             "following_count": self.following_count,
-            "video_count": self.video_count
+            "video_count": self.video_count,
         }
 
 
@@ -77,12 +91,19 @@ class TiktokVideo:
             "video_id": self.video_id,
             "title": self.title,
             "thumbnail": self.thumbnail,
-            "user": self.user
+            "user": self.user,
         }
 
 
 class TikTokVideoCount:
-    def __init__(self, video_id: str, view_count: int, like_count: int, comment_count: int, share_count: int):
+    def __init__(
+        self,
+        video_id: str,
+        view_count: int,
+        like_count: int,
+        comment_count: int,
+        share_count: int,
+    ):
         self.video_id = video_id
         self.view_count = view_count
         self.like_count = like_count
@@ -103,7 +124,7 @@ class TikTokVideoCount:
             "view_count": self.view_count,
             "like_count": self.like_count,
             "comment_count": self.comment_count,
-            "share_count": self.share_count
+            "share_count": self.share_count,
         }
 
 
@@ -143,17 +164,13 @@ class TiktokAgent:
         Returns:
             TiktokUserCount: An object containing user metrics.
         """
-        return TiktokAgent.__fetch_user_metrics_by_tiktok_id(query)
-
-    @staticmethod
-    def __fetch_user_metrics_by_tiktok_id(tiktok_id: str) -> TiktokUserCount:
-        metrics = send_request(f"{env.TIKTOK_USER_STATS_API}/{tiktok_id}")
+        metrics = send_request(f"{env.TIKTOK_USER_STATS_API}/{query}")
         return TiktokUserCount(
-            user_id=tiktok_id,
+            user_id=query,
             follower_count=metrics.get("followerCount", 0),
             like_count=metrics.get("likeCount", 0),
             following_count=metrics.get("followingCount", 0),
-            video_count=metrics.get("videoCount", 0)
+            video_count=metrics.get("videoCount", 0),
         )
 
     @staticmethod
@@ -182,12 +199,16 @@ class TiktokAgent:
             video_id=video_id,
             title=video.get("title", ""),
             thumbnail=video.get("cover", ""),
-            user=TiktokUser(
-                user_id=user.get("userId", ""),
-                username=user.get("id", ""),
-                display_name=user.get("username", ""),
-                thumbnail=user.get("avatar", "")
-            ) if user else None
+            user=(
+                TiktokUser(
+                    user_id=user.get("userId", ""),
+                    username=user.get("id", ""),
+                    display_name=user.get("username", ""),
+                    thumbnail=user.get("avatar", ""),
+                )
+                if user
+                else None
+            ),
         )
 
     @staticmethod
@@ -220,5 +241,5 @@ class TiktokAgent:
             like_count=metrics.get("likeCount", 0),
             comment_count=metrics.get("commentCount", 0),
             share_count=metrics.get("shareCount", 0),
-            view_count=metrics.get("viewCount", 0)
+            view_count=metrics.get("viewCount", 0),
         )

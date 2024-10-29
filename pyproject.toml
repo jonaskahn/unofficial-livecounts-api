@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "unofficial-livecounts-api"
-version = "0.1.3"
+version = "0.1.4"
 description = "Unofficial API Livecounts.io"
 authors = ["Jonas <me@ifelse.one>"]
 readme = "README.md"

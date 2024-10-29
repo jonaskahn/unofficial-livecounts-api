@@ -1,15 +1,16 @@
 # 🎶 Unofficial Livecounts.io API
 
-**Unofficial API for Livecounts.io to retrieve live counts for users and videos on TikTok, YouTube, Twitter, Twitch, KickLive, Vlive, and Odysee**
+**Unofficial API for Livecounts.io to retrieve live counts for users and videos on TikTok, YouTube, Twitter, Twitch,
+KickLive, Vlive, and Odysee**
 
 ## 📝 Supported APIs
 
 - [x] **YouTube**: User/Video Count
 - [x] **TikTok**: User/Video Count
 - [x] **Twitter**: User Count
-- [ ] **Twitch**: To be supported
-- [ ] **Vlive**: To be supported
+- [x] **Twitch**: User Count
 - [ ] **Kicklive**: To be supported
+- [ ] **Vlive**: To be supported
 - [ ] **Odysee-live**: To be supported
 
 ## 🕵️ Usage
@@ -42,7 +43,8 @@ video_by_query = TiktokAgent.find_video(query="https://tiktok.com/@test/video/12
 video_by_video_id = TiktokAgent.find_video(query="122222223233232")
 
 # Live count video
-video_metric_by_query = TiktokAgent.fetch_video_metrics(query="https://tiktok.com/@test/video/122222223233232?test1=value1")
+video_metric_by_query = TiktokAgent.fetch_video_metrics(
+    query="https://tiktok.com/@test/video/122222223233232?test1=value1")
 video_metric_by_video_id = TiktokAgent.fetch_video_metrics(query="122222223233232")
 ```
 

@@ -9,7 +9,11 @@ class YoutubeChannel:
         self.thumbnail = thumbnail
 
     def __eq__(self, other):
-        return self.channel_id == other.channel_id if isinstance(other, YoutubeChannel) else False
+        return (
+            self.channel_id == other.channel_id
+            if isinstance(other, YoutubeChannel)
+            else False
+        )
 
     def __hash__(self):
         return hash(self.channel_id)
@@ -18,7 +22,7 @@ class YoutubeChannel:
         return {
             "channel_id": self.channel_id,
             "display_name": self.display_name,
-            "thumbnail": self.thumbnail
+            "thumbnail": self.thumbnail,
         }
 
 
@@ -44,7 +48,7 @@ class YoutubeChannelCount:
             "follower_count": self.follower_count,
             "view_count": self.view_count,
             "video_count": self.video_count,
-            "goal_count": self.goal_count
+            "goal_count": self.goal_count,
         }
 
 
@@ -66,7 +70,7 @@ class YoutubeVideo:
         return {
             "video_id": self.video_id,
             "display_name": self.display_name,
-            "thumbnail": self.thumbnail
+            "thumbnail": self.thumbnail,
         }
 
 
@@ -92,7 +96,7 @@ class YoutubeVideoCount:
             "view_count": self.view_count,
             "like_count": self.like_count,
             "dislike_count": self.dislike_count,
-            "comment_count": self.comment_count
+            "comment_count": self.comment_count,
         }
 
 
@@ -109,7 +113,9 @@ class YoutubeAgent:
         Returns:
             list[YoutubeChannel]
         """
-        users = send_request(f"{env.YOUTUBE_CHANNEL_SEARCH_API}/{query}").get("userData", [])
+        users = send_request(f"{env.YOUTUBE_CHANNEL_SEARCH_API}/{query}").get(
+            "userData", []
+        )
         return [
             YoutubeChannel(
                 channel_id=item.get("id", ""),
@@ -151,7 +157,9 @@ class YoutubeAgent:
         Returns:
             list[YoutubeVideo]
         """
-        videos = send_request(f"{env.YOUTUBE_VIDEO_SEARCH_API}/{query}").get("userData", [])
+        videos = send_request(f"{env.YOUTUBE_VIDEO_SEARCH_API}/{query}").get(
+            "userData", []
+        )
         return [
             YoutubeVideo(
                 video_id=item.get("id", ""),

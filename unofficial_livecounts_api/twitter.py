@@ -4,14 +4,18 @@ from unofficial_livecounts_api.utils import send_request
 
 
 class TwitterUser:
-    def __init__(self, user_id: str, display_name: str, thumbnail: str, verified: bool = None):
+    def __init__(
+        self, user_id: str, display_name: str, thumbnail: str, verified: bool = None
+    ):
         self.user_id = user_id
         self.thumbnail = thumbnail
         self.display_name = display_name
         self.verified = verified
 
     def __eq__(self, other):
-        return self.user_id == other.user_id if isinstance(other, TwitterUser) else False
+        return (
+            self.user_id == other.user_id if isinstance(other, TwitterUser) else False
+        )
 
     def __hash__(self):
         return hash(self.user_id)
@@ -21,7 +25,7 @@ class TwitterUser:
             "user_id": self.user_id,
             "display_name": self.display_name,
             "thumbnail": self.thumbnail,
-            "verified": self.verified
+            "verified": self.verified,
         }
 
 
@@ -47,7 +51,7 @@ class TwitterUserCount:
             "follower_count": self.follower_count,
             "tweet_count": self.tweet_count,
             "following_count": self.following_count,
-            "goal_count": self.goal_count
+            "goal_count": self.goal_count,
         }
 
 
@@ -67,14 +71,16 @@ class TwitterAgent:
         Raise:
             TwitterError - if the user is not found.
         """
-        users = send_request(f"{env.TWITTER_USER_SEARCH_API}/{query}").get("userData", [])
+        users = send_request(f"{env.TWITTER_USER_SEARCH_API}/{query}").get(
+            "userData", []
+        )
         if not users:
             raise TwitterError("user not found")
         return TwitterUser(
             user_id=users[0]["id"],
             display_name=users[0]["username"],
             thumbnail=users[0]["avatar"],
-            verified=users[0]["verified"]
+            verified=users[0]["verified"],
         )
 
     @staticmethod
